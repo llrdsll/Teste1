@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Card Slider</title>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.8s ease, color 0.8s ease;
+            overflow: hidden;
+        }
+        .swiper-container {
+            width: 90%;
+            max-width: 1200px;
+        }
+        .swiper-slide {
+            display: flex;
+            justify-content: center;
+        }
+        .profile-card {
+            background-color: #fff;
+            width: 100%;
+            max-width: 350px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            text-align: center;
+            transition: all 0.8s ease;
+            border-bottom: 5px solid #000;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.9); /* Slightly scale down the card when it's not active */
+            transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+        }
+        .swiper-slide-active .profile-card {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1); /* Scale up to full size when the slide is active */
+        }
+        .profile-card:hover {
+            border-bottom: 5px solid #555;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        .menu {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            width: 20px;
+            height: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+        }
+        .menu div {
+            height: 3px;
+            width: 100%;
+            background-color: #000;
+            border-radius: 2px;
+            transition: all 0.4s ease;
+        }
+        .menu.clicked div:nth-child(1) {
+            transform: rotate(45deg) translate(4px, 4px);
+        }
+        .menu.clicked div:nth-child(2) {
+            opacity: 0;
+        }
+        .menu.clicked div:nth-child(3) {
+            transform: rotate(-45deg) translate(4px, -4px);
+        }
+        .mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.8s ease;
+        }
+        .mode-toggle:hover {
+            transform: scale(1.1);
+        }
+        .menu-options {
+            position: absolute;
+            top: 60px;
+            left: -20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            transition: opacity 0.8s ease, transform 0.8s ease, visibility 0.8s ease;
+        }
+        .menu-options.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .menu-options .option {
+            color: #fff;
+            margin: 10px 0;
+            padding: 5px 0;
+            font-size: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.8s ease;
+        }
+        .menu-options .option::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #000;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.8s ease;
+        }
+        .menu-options .option:hover::before {
+            transform: scaleX(1);
+        }
+        .menu-options .option:hover {
+            color: #aaa;
+        }
+        .profile-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            transition: transform 0.8s ease;
+        }
+        .profile-card img:hover {
+            transform: scale(1.1);
+        }
+        .profile-card h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            transition: color 0.8s ease;
+        }
+        .profile-card p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+            transition: color 0.8s ease;
+        }
+        .social-icons {
+            margin-bottom: 30px;
+        }
+        .social-icons a {
+            font-size: 22px;
+            margin: 0 12px;
+            color: #000;
+            text-decoration: none;
+            transition: color 0.8s ease;
+        }
+        .social-icons a:hover {
+            color: #555;
+        }
+        .profile-card button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-bottom: 40px;
+            transition: background-color 0.8s ease, transform 0.8s ease, box-shadow 0.8s ease;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .profile-card button:hover {
+            background-color: #555;
+            transform: translateY(-3px);
+            box-shadow: 0px 5px 15px rgba(85, 85, 85, 0.3);
+        }
+        .learning-more {
+            font-size: 16px;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: color 0.8s ease;
+        }
+        .learning-more i {
+            margin-top: 10px;
+            transition: transform 0.8s ease, opacity 0.8s ease;
+        }
+        .more-info {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 1.5s ease, opacity 1.5s ease;
+            opacity: 0;
+        }
+        .more-info.show {
+            max-height: 200px;
+            opacity: 1;
+        }
+        .more-info p {
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+        .more-info.show p {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .profile-card {
+                width: 100%;
+                padding: 20px;
+            }
+            .profile-card img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+        @media (max-width: 480px) {
+            .profile-card {
+                width: 100%;
+                padding: 15px;
+            }
+            .profile-card h2 {
+                font-size: 20px;
+            }
+            .profile-card p {
+                font-size: 14px;
+            }
+        }
+        body.dark-mode {
+            background-color: #000;
+            color: #fff;
+        }
+        body.dark-mode .profile-card {
+            background-color: #222;
+            color: #fff;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+        body.dark-mode .profile-card button {
+            background-color: #fff;
+            color: #000;
+        }
+        body.dark-mode .learning-more {
+            color: #fff;
+        }
+        body.dark-mode .social-icons a {
+            color: #ddd;
+        }
+        /* Add this to your existing CSS */
+
+/* Desktop-specific larger profile card */
+@media (min-width: 1024px) {
+    .profile-card {
+        width: 45vw;      /* Reduce width to 45% of the viewport */
+        height: auto;     /* Adjust height automatically based on content */
+        max-width: 600px; /* Limit max width to ensure it fits comfortably */
+        padding: 40px;    /* Slightly reduce padding */
+    }
+
+    /* Adjust content inside the profile card for desktop */
+    .profile-card img {
+        width: 160px;     /* Slightly smaller profile picture */
+        height: 160px;
+    }
+
+    .profile-card h2 {
+        font-size: 30px;  /* Slightly smaller name text */
+    }
+
+    .profile-card p {
+        font-size: 18px;  /* Maintain readable description text */
+    }
+
+    .profile-card button {
+        font-size: 18px;  /* Slightly smaller button size */
+        padding: 12px 35px;  /* Adjust padding for smaller button */
+    }
+
+    /* Ensure swiper container keeps the card centered */
+    .swiper-container {
+        height: auto;          /* Ensure content fits in view */
+        padding: 30px 0;       /* Reduce padding a bit to prevent cut-off */
+    }
+}
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <!-- Swiper Container -->
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <!-- Profile Card 1 -->
+            <div class="swiper-slide">
+                <div class="profile-card">
+                    <div class="menu" onclick="toggleMenu(this)">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="menu-options">
+                        <div class="option" onclick="alert('Perfil')">Perfil</div>
+                        <div class="option" onclick="alert('Mensagens')">Mensagens</div>
+                        <div class="option" onclick="alert('Sair')">Sair</div>
+                    </div>
+                    <div class="mode-toggle" onclick="toggleDarkMode()" id="mode-toggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <img src="https://via.placeholder.com/120" alt="Foto de Perfil">
+                    <h2>John Doe</h2>
+                    <p>Desenvolvedor Web</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                    <button>Follow</button>
+                    <div class="learning-more" onclick="toggleInfo(this)">
+                        <span>Learning More</span>
+                        <i class="fas fa-arrow-down" id="arrow-icon"></i>
+                    </div>
+                    <div class="more-info" id="more-info">
+                        <p>Olá, eu sou John Doe, um desenvolvedor web apaixonado por tecnologia. Tenho mais de 5 anos de experiência em desenvolvimento de sites e aplicativos.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Profile Card 2 -->
+            <div class="swiper-slide">
+                <div class="profile-card">
+                    <div class="menu" onclick="toggleMenu(this)">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="menu-options">
+                        <div class="option" onclick="alert('Perfil')">Perfil</div>
+                        <div class="option" onclick="alert('Mensagens')">Mensagens</div>
+                        <div class="option" onclick="alert('Sair')">Sair</div>
+                    </div>
+                    <div class="mode-toggle" onclick="toggleDarkMode()" id="mode-toggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <img src="https://via.placeholder.com/120" alt="Foto de Perfil">
+                    <h2>Jane Smith</h2>
+                    <p>Designer Gráfico</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-dribbble"></i></a>
+                    </div>
+                    <button>Follow</button>
+                    <div class="learning-more" onclick="toggleInfo(this)">
+                        <span>Learning More</span>
+                        <i class="fas fa-arrow-down" id="arrow-icon"></i>
+                    </div>
+                    <div class="more-info" id="more-info">
+                        <p>Olá, sou Jane Smith, uma designer gráfico com uma grande paixão por criar soluções visuais inovadoras para empresas e marcas.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Profile Card 3 -->
+            <div class="swiper-slide">
+                <div class="profile-card">
+                    <div class="menu" onclick="toggleMenu(this)">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="menu-options">
+                        <div class="option" onclick="alert('Perfil')">Perfil</div>
+                        <div class="option" onclick="alert('Mensagens')">Mensagens</div>
+                        <div class="option" onclick="alert('Sair')">Sair</div>
+                    </div>
+                    <div class="mode-toggle" onclick="toggleDarkMode()" id="mode-toggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <img src="https://via.placeholder.com/120" alt="Foto de Perfil">
+                    <h2>Michael Johnson</h2>
+                    <p>Especialista em Marketing</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                    <button>Follow</button>
+                    <div class="learning-more" onclick="toggleInfo(this)">
+                        <span>Learning More</span>
+                        <i class="fas fa-arrow-down" id="arrow-icon"></i>
+                    </div>
+                    <div class="more-info" id="more-info">
+                        <p>Sou Michael Johnson, especialista em marketing digital, com foco em desenvolver estratégias eficazes para expandir negócios online.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
+        // Toggle Menu Function
+        function toggleMenu(element) {
+            const menuOptions = element.nextElementSibling;
+            element.classList.toggle('clicked');
+            menuOptions.classList.toggle('show');
+        }
+
+        // Toggle Dark Mode Function
+        function toggleDarkMode() {
+            var body = document.body;
+            var modeIcon = document.getElementById('mode-toggle').children[0];
+            body.classList.toggle('dark-mode');
+
+            if (body.classList.contains('dark-mode')) {
+                modeIcon.classList.remove('fa-moon');
+                modeIcon.classList.add('fa-sun');
+            } else {
+                modeIcon.classList.remove('fa-sun');
+                modeIcon.classList.add('fa-moon');
+            }
+        }
+
+        // Toggle Info Function
+        function toggleInfo(element) {
+            var moreInfo = element.nextElementSibling;
+            var arrowIcon = element.children[1];
+
+            moreInfo.classList.toggle('show');
+            if (moreInfo.classList.contains('show')) {
+                arrowIcon.style.transform = 'rotate(180deg)';
+                arrowIcon.style.opacity = '0.6';
+            } else {
+                arrowIcon.style.transform = 'rotate(0deg)';
+                arrowIcon.style.opacity = '1';
+            }
+        }
+
+        // Swiper initialization
+        const swiper = new Swiper('.swiper-container', {
+            loop: true,
+            slidesPerView: 1, // Show one card per slide
+            spaceBetween: 30,
+            navigation: false,
+            pagination: false,
+        });
+    </script>
+</body>
+</html>
